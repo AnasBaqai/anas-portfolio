@@ -88,7 +88,8 @@ together.
 
 ### Typography
 
-- **Display / headings:** Archivo 900, uppercase, `letter-spacing: -0.05em`, `line-height: 0.9`, sized `clamp(2rem, 5.8vw, 4.9rem)`. (Reduced from a `6.6rem` cap — 106px read as oversized on a 1440px screen; 78px still holds three lines with the metrics above the fold.)
+- **Display / hero (`display-xl`):** Archivo 900, uppercase, `letter-spacing: -0.055em`, `line-height: 0.92`, sized `clamp(1.75rem, 4.6vw, 3.9rem)` → 62px at 1440px. Reduced in two steps from an original `6.6rem` cap (106px), which read as oversized.
+- **Display / section headings (`display-lg`):** same family, `line-height: 1`, sized `clamp(1.5rem, 3.2vw, 2.7rem)` → 43px at 1440px. **This had to shrink with the hero.** At the original `3.5rem` cap it rendered at 56px, so once the hero came down to 62px the two levels were only 11% apart and read as the same level. The h1:h2 ratio is now 1.44 on desktop and laptop.
 - **Body / UI:** Space Grotesk 400–600.
 - **Accent:** Instrument Serif italic, used only for one emphasised word per heading, in `--acc2`.
 - Loaded via `next/font/google` with `display: swap` and subset `latin`.
