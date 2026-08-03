@@ -40,7 +40,7 @@ resume line.
 | `--surface` | `#111116` | `#FFFFFF` |
 | `--ink` | `#F4F4F5` | `#09090B` |
 | `--dim` | `#A1A1AA` | `#52525B` |
-| `--faint` | `#8A8A94` | `#71717A` |
+| `--faint` | `#8A8A94` | `#6A6A73` |
 | `--line` | `#232329` | `#D4D4D8` |
 | `--acc` (primary accent) | `#4F7CFF` | `#2563EB` |
 | `--acc2` (secondary accent) | `#7CE0C3` | `#0F766E` |
@@ -53,7 +53,31 @@ during mockup verification. Dark `--faint` was later raised from `#52525B` to `#
 because the original measured 2.56:1 against `--bg`; it is used for body-sized labels in
 eight components, which need 4.5:1, and it now measures 5.79:1. Light `--acc2` was darkened
 from `#0D9488` to `#0F766E` because the original measured 3.59:1 and is used for body-sized
-text in the project taglines and publication venue; it now measures 5.24:1.
+text in the project taglines and publication venue; it now measures 5.24:1. Light `--faint`
+was later darkened again from `#71717A` to `#6A6A73` when the background texture landed: the
+grain lifts the effective background, which cut `#71717A` to 4.55:1 — passing, but only
+0.05 above the floor. `#6A6A73` restores the margin at 5.04:1 over the composited background.
+
+`--warn` is used **only inside the aria-hidden canvas**, never as text, so the WCAG text
+threshold does not apply to it. It is the one token deliberately below 4.5:1 in light mode.
+
+### Background texture
+
+Two fixed, decorative layers under everything (`body::before` and `body::after`, `z-index: 0`,
+`pointer-events: none`, below the canvas at `z-1` and the content at `z-2`):
+
+- **Grain** — one inline `feTurbulence` fractal-noise SVG, `--grain-opacity` (0.055 dark /
+  0.05 light). No image file.
+- **Dots** — a `radial-gradient` lattice in `--dot` at 26px, `--dot-opacity` 0.7.
+
+Because text now sits on a composited background rather than the flat token, **every text
+token is measured against the dominant composited background**, not against `--bg`. That
+check is automated in `e2e/accessibility.spec.ts` and it fails if a texture opacity is
+raised past the AA floor — verified by mutation. Light-mode grain is capped at 0.05 for this
+reason: the 0.085 that looked best in the mockup pushed `--faint` to 4.51:1.
+
+Measured cost: 0/222 frames over 16.7ms while scrolling the full page at 4× CPU throttle on
+a 390×844 viewport. The layers are `fixed`, so they composite rather than repaint per frame.
 
 Theme is driven by `data-theme` on `<html>`. Default dark; a header toggle flips it and
 persists to `localStorage`. Initial value respects `prefers-color-scheme` when no stored
@@ -63,7 +87,7 @@ together.
 
 ### Typography
 
-- **Display / headings:** Archivo 900, uppercase, `letter-spacing: -0.05em`, `line-height: 0.88`, sized `clamp(2.4rem, 7.6vw, 6.6rem)`.
+- **Display / headings:** Archivo 900, uppercase, `letter-spacing: -0.05em`, `line-height: 0.9`, sized `clamp(2rem, 5.8vw, 4.9rem)`. (Reduced from a `6.6rem` cap — 106px read as oversized on a 1440px screen; 78px still holds three lines with the metrics above the fold.)
 - **Body / UI:** Space Grotesk 400–600.
 - **Accent:** Instrument Serif italic, used only for one emphasised word per heading, in `--acc2`.
 - Loaded via `next/font/google` with `display: swap` and subset `latin`.
@@ -119,6 +143,26 @@ discriminating test for this feature is that **at 25%, 50% and 75% scroll depth 
 sees different shapes in different places** — not one shape recoloured. Any implementation
 that fails that test has regressed.
 
+### The epilogue
+
+The narrative ends at `#story`, which is only ~50% of total scroll height. Originally
+`narrativeProgress` clamped to 1 there, so the subject **parked for the entire second half of
+the page** — Experience, Projects, Skills, Credentials and Contact all sat behind a frozen
+shape. `EPILOGUE` continues the journey past that point:
+
+```
+hand-off     [0.42, 0.44, 0.50]   ← identical to JOURNEY[4], so there is no jump
+experience   [0.82, 0.60, 0.33]
+projects     [0.16, 0.36, 0.26]   ← crosses back to the far left
+contact      [0.60, 0.54, 0.20]   ← settles small and low-right
+```
+
+The formation stays the constellation; only position, scale and spin continue, so the subject
+recedes as the reader moves into the CV proper instead of competing with it. Still a pure
+function of `scrollY`. Guarded by two e2e tests — traversal (>0.3 centroid spread across the
+epilogue) and a seamless hand-off — the first of which was mutation-tested by disconnecting
+`epilogueAt`.
+
 ### Scrub semantics
 
 Particle position is a **pure function of scroll offset** — interpolation between
@@ -143,6 +187,9 @@ The animation runs on mobile — it is not disabled. Adaptations:
   recompute links at 20fps rather than every frame while drawing them every frame.
 - Canvas backing store capped at `devicePixelRatio ≤ 2`.
 - Text panels stack full-width; the alternating left/right layout collapses to left-aligned.
+- The act panels' enter/exit slide is capped at **6% of viewport width**. A flat 70px offset
+  was 18% of a 390px phone and pushed the copy past both screen edges while it faded in.
+  Desktop is unaffected (6% of 1440px exceeds the 70px cap).
 - The progress spine is hidden below 900px.
 - The `requestAnimationFrame` callback early-returns when `document.hidden` is true. The
   canvas is `fixed inset-0`, so it has no off-screen state — an IntersectionObserver would
