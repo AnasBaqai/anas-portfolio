@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   FORMATION_COUNT, JOURNEY, EPILOGUE, buildFormations, stageAt, interpolateInto,
-  journeyAt, epilogueAt,
+  journeyAt, epilogueAt, epilogueStage,
 } from '@/lib/formations';
 
 const N = 180;
@@ -169,5 +169,42 @@ describe('epilogueAt', () => {
 
   it('starts from the same keyframe the journey ends on', () => {
     expect(EPILOGUE[0]).toEqual(JOURNEY[FORMATION_COUNT - 1]);
+  });
+});
+
+describe('epilogueStage', () => {
+  it('runs the formations in reverse, back to the opening cloud', () => {
+    // The epilogue replays the journey backwards so the subject keeps morphing
+    // instead of sitting frozen as three clusters (the reported bug).
+    expect(epilogueStage(0)).toBe(1); // hands off at the constellation
+    expect(epilogueStage(1)).toBe(0); // ends on the cloud it opened with
+    expect(epilogueStage(0.5)).toBe(0.5);
+  });
+
+  it('is strictly decreasing, so every scroll step changes the shape', () => {
+    let prev = Infinity;
+    for (let p = 0; p <= 1.0001; p += 0.05) {
+      const s = epilogueStage(p);
+      expect(s).toBeLessThan(prev);
+      prev = s;
+    }
+  });
+
+  it('visits every formation, so no shape is skipped', () => {
+    const seen = new Set<number>();
+    for (let p = 0; p <= 1.0001; p += 0.01) {
+      seen.add(stageAt(epilogueStage(p)).index);
+    }
+    // indices 0..3 each pair to the next formation, covering all five shapes
+    expect([...seen].sort()).toEqual([0, 1, 2, 3]);
+  });
+
+  it('clamps rather than running past the cloud', () => {
+    expect(epilogueStage(-2)).toBe(1);
+    expect(epilogueStage(4)).toBe(0);
+  });
+
+  it('has one position keyframe per formation so shape and place stay in step', () => {
+    expect(EPILOGUE).toHaveLength(FORMATION_COUNT);
   });
 });

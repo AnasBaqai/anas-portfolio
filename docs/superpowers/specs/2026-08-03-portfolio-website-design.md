@@ -152,16 +152,28 @@ shape. `EPILOGUE` continues the journey past that point:
 
 ```
 hand-off     [0.42, 0.44, 0.50]   ← identical to JOURNEY[4], so there is no jump
-experience   [0.82, 0.60, 0.33]
-projects     [0.16, 0.36, 0.26]   ← crosses back to the far left
-contact      [0.60, 0.54, 0.20]   ← settles small and low-right
+experience   [0.80, 0.58, 0.36]
+projects     [0.18, 0.40, 0.30]   ← crosses back to the far left
+skills       [0.72, 0.50, 0.24]
+contact      [0.45, 0.56, 0.18]   ← settles small and low
 ```
 
-The formation stays the constellation; only position, scale and spin continue, so the subject
-recedes as the reader moves into the CV proper instead of competing with it. Still a pure
-function of `scrollY`. Guarded by two e2e tests — traversal (>0.3 centroid spread across the
-epilogue) and a seamless hand-off — the first of which was mutation-tested by disconnecting
-`epilogueAt`.
+**The epilogue also keeps morphing**, by running the five formations in reverse —
+constellation → agents → pipeline → embedding → cloud — dissolving back to the shape the page
+opened with. A first attempt moved the subject but left the formation frozen at the
+constellation, so it read as "three circles sliding around"; travel alone is not enough. Note
+that this needs no sixth formation, which the risks section rules out.
+
+There is one `EPILOGUE` position keyframe per formation so shape changes and position changes
+stay in step. Overlays follow the same reversed stage, so each formation keeps its own overlay
+on the way back. Still a pure function of `scrollY`; the subject shrinks throughout so it
+recedes as the reader moves into the CV proper.
+
+Guarded by two e2e tests: a seamless hand-off, and one asserting **both** traversal (>0.3
+centroid spread) **and** shape change (>2× ink ratio). The shape assertion exists because the
+first version of that test checked position only and therefore passed while the formation was
+frozen — the regression the user actually reported. Both were mutation-tested: disconnecting
+`epilogueAt` fails the first, re-freezing the formation fails the second.
 
 ### Scrub semantics
 

@@ -19,16 +19,21 @@ export const JOURNEY = [
 /**
  * Where the subject travels *after* the narrative ends.
  *
- * The narrative occupies only the first ~47% of the page; without this the
+ * The narrative occupies only the first ~50% of the page; without this the
  * subject parked at JOURNEY[4] for the whole of Experience, Projects, Skills
  * and Contact. The first entry must equal JOURNEY[4] so the hand-off from
  * `journeyAt` to `epilogueAt` is seamless (asserted in formations.test.ts).
+ *
+ * There are five entries — one per formation — because the epilogue runs the
+ * five formations in reverse (see `epilogueStage`), and a position keyframe has
+ * to line up with each shape change or the two drift out of step.
  */
 export const EPILOGUE = [
   [0.42, 0.44, 0.5], // hand-off — identical to JOURNEY[4]
-  [0.82, 0.6, 0.33], // experience — swings right and down, shrinking away
-  [0.16, 0.36, 0.26], // projects / skills — crosses back to the far left
-  [0.6, 0.54, 0.2], // credentials / contact — settles small and low-right
+  [0.8, 0.58, 0.36], // experience — swings right and down
+  [0.18, 0.4, 0.3], // projects — crosses back to the far left
+  [0.72, 0.5, 0.24], // skills — right again, smaller
+  [0.45, 0.56, 0.18], // credentials / contact — settles small and low
 ] as const satisfies readonly (readonly [number, number, number])[];
 
 /** Cluster centres for the constellation formation. Shared with the overlay. */
@@ -117,6 +122,20 @@ export function interpolateInto(
   const a = formations[index];
   const b = formations[index + 1];
   for (let i = 0; i < out.length; i++) out[i] = lerp(a[i], b[i], frac);
+}
+
+/**
+ * The epilogue runs the five formations in REVERSE: constellation -> agents ->
+ * pipeline -> embedding -> cloud, dissolving back to the shape the page opened
+ * with. Returns the equivalent *narrative* progress, so the caller can reuse
+ * `stageAt` and the overlay weights unchanged — the subject keeps morphing and
+ * keeps its overlays instead of sitting frozen as three clusters.
+ *
+ * A sixth formation would have been the obvious alternative; the spec caps the
+ * count at five because more than that reads as mush.
+ */
+export function epilogueStage(progress: number): number {
+  return 1 - clamp(progress, 0, 1);
 }
 
 /**

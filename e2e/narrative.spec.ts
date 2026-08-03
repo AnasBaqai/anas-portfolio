@@ -96,6 +96,16 @@ test.describe('the epilogue', () => {
       Math.max(...xs) - Math.min(...xs),
       'subject must traverse during the epilogue, not sit still',
     ).toBeGreaterThan(0.3);
+
+    // ...and the SHAPE has to keep changing too. The first version of this test
+    // asserted only position, which is why it passed while the formation was
+    // still frozen as three clusters that merely slid around — the exact thing
+    // the user reported. Ink count is the cheapest proxy for "different shape".
+    const inks = samples.map((s) => s.ink);
+    expect(
+      Math.max(...inks) / Math.min(...inks),
+      'formation must keep morphing during the epilogue, not just translate',
+    ).toBeGreaterThan(2);
   });
 
   test('hands off from the narrative without jumping', async ({ page }) => {

@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { narrativeProgress, subscribeToFrame } from '@/lib/scroll';
 import {
-  buildFormations, epilogueAt, interpolateInto, journeyAt, stageAt, FORMATION_COUNT,
+  buildFormations, epilogueAt, epilogueStage, interpolateInto, journeyAt, stageAt,
+  FORMATION_COUNT,
 } from '@/lib/formations';
 import { computeLinks } from '@/lib/neighbors';
 import {
@@ -104,16 +105,20 @@ export default function Subject() {
 
       const { start, end } = narrativeBounds();
       const progress = narrativeProgress(scrollY, start, end);
-      const { index, frac: rawFrac } = stageAt(progress);
+
+      // Past the narrative the formation would stop changing, leaving the
+      // subject frozen through Experience, Projects, Skills and Contact — over
+      // half the page. The epilogue keeps it both travelling AND morphing, by
+      // running the five formations in reverse back to the opening cloud.
+      const epilogue = narrativeProgress(scrollY, end, maxScroll());
+      const shapeProgress = epilogue > 0 ? epilogueStage(epilogue) : progress;
+
+      const { index, frac: rawFrac } = stageAt(shapeProgress);
       // Reduced motion: snap to the nearest formation instead of morphing
       // between them, so the shape is still meaningful but never in transit.
       const frac = reduced ? Math.round(rawFrac) : rawFrac;
-      const s = progress * (FORMATION_COUNT - 1);
+      const s = shapeProgress * (FORMATION_COUNT - 1);
 
-      // Past the narrative the formation stops changing, so the subject would
-      // sit frozen through Experience, Projects, Skills and Contact — over half
-      // the page. The epilogue keeps it travelling, still purely scroll-driven.
-      const epilogue = narrativeProgress(scrollY, end, maxScroll());
       const { cx, cy, scale } = epilogue > 0
         ? epilogueAt(epilogue, width, height)
         : journeyAt(index, frac, width, height);
