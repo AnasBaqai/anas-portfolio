@@ -11,6 +11,8 @@ export interface Act {
 export interface Role {
   title: string;
   company: string;
+  /** Live product, where there is one to show. */
+  url?: string;
   context?: string;
   location: string;
   period: string;
@@ -103,6 +105,8 @@ export const resume = {
     {
       title: 'Backend Engineer (Freelance)',
       company: 'Boardd',
+      // Supplied by the user — this URL is not in the CV PDF.
+      url: 'https://boarddd-frontend-murex.vercel.app/',
       context: 'Enterprise Business Platform',
       location: 'Remote',
       period: 'May 2025 — Present',

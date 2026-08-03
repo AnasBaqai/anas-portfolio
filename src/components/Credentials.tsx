@@ -1,4 +1,5 @@
 import { resume } from '@/content/resume';
+import ExternalArrow from './ExternalArrow';
 
 export default function Credentials() {
   return (
@@ -33,18 +34,7 @@ export default function Credentials() {
                 className="group inline transition-colors hover:text-[var(--acc)]"
               >
                 {resume.publication.title}
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  className="ml-1.5 inline h-3 w-3 shrink-0 align-baseline text-[var(--faint)] transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--acc)]"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M7 17 17 7M9 7h8v8" />
-                </svg>
+                <ExternalArrow className="ml-1.5 inline align-baseline" />
               </a>
             </h3>
             <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">

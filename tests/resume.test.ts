@@ -42,6 +42,18 @@ describe('outbound links', () => {
     }
   });
 
+  it('links Boardd to its live product', () => {
+    const boardd = resume.experience.find((r) => r.company === 'Boardd');
+    expect(boardd?.url).toBe('https://boarddd-frontend-murex.vercel.app/');
+  });
+
+  it('only links roles that actually have a public product', () => {
+    // The other three employers have no public URL; inventing one would be
+    // worse than omitting it.
+    const linked = resume.experience.filter((r) => r.url).map((r) => r.company);
+    expect(linked).toEqual(['Boardd']);
+  });
+
   it('links the publication to its IEEE Xplore record', () => {
     expect(resume.publication.url).toBe('https://ieeexplore.ieee.org/document/11119895');
   });
@@ -52,6 +64,7 @@ describe('outbound links', () => {
       resume.publication.url,
       resume.contact.linkedin,
       resume.contact.github,
+      ...resume.experience.flatMap((r) => (r.url ? [r.url] : [])),
     ];
     for (const u of urls) expect(u.startsWith('https://'), `${u} is not https`).toBe(true);
   });

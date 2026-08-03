@@ -1,4 +1,5 @@
 import { resume } from '@/content/resume';
+import ExternalArrow from './ExternalArrow';
 
 export default function Projects() {
   return (
@@ -11,30 +12,26 @@ export default function Projects() {
           {resume.projects.map((project) => (
             <article
               key={project.name}
-              className="border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--acc)]"
+              className="relative border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--acc)] focus-within:border-[var(--acc)]"
             >
               <h3 className="font-display text-lg font-extrabold tracking-tight">
+                {/*
+                  The whole card is the click target, via a stretched ::after on
+                  this anchor rather than an element wrapping the card. That keeps
+                  exactly one link per card — no nested interactive elements, and
+                  the accessible name stays the project title. Because ::after
+                  belongs to the anchor, hovering anywhere on the card also
+                  triggers the anchor's own hover styles.
+                */}
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${project.name} — source on GitHub (opens in a new tab)`}
-                  className="group inline-flex items-baseline gap-1.5 transition-colors hover:text-[var(--acc)]"
+                  className="group inline-flex items-baseline gap-1.5 transition-colors hover:text-[var(--acc)] after:absolute after:inset-0 after:content-['']"
                 >
                   {project.name}
-                  {/* Arrow leans out on hover — the affordance that says "leaves the page". */}
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    className="h-3 w-3 shrink-0 self-center text-[var(--faint)] transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--acc)]"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M7 17 17 7M9 7h8v8" />
-                  </svg>
+                  <ExternalArrow className="self-center" />
                 </a>
               </h3>
               <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
