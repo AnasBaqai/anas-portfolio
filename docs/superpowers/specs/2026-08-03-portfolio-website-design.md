@@ -11,7 +11,8 @@ ten-second recruiter scan, and leave a technical reviewer convinced the person b
 things listed.
 
 **Success criteria**
-- Name, role, location, and work-authorisation status are readable without scrolling.
+- Name, role, and location are readable without scrolling. (Work-authorisation status was
+  originally in this list; it moved to the footer — see Page Structure.)
 - The three headline outcomes (10h/week saved, 60% faster, 111 licensors) are visible above the fold.
 - A recruiter can reach email/LinkedIn/GitHub/CV from any scroll position.
 - Loads and animates at 60fps on a mid-tier phone.
@@ -227,7 +228,7 @@ explicit requirement.
 ## Page Structure
 
 1. **Header** — name mark, anchor nav, theme toggle, CV download. Sticky, backdrop-blurred.
-2. **Hero** — eyebrow (Munich, EU Blue Card eligible), masked line-reveal headline, one-paragraph summary, three metrics, scroll cue.
+2. **Hero** — eyebrow (Munich, Germany), masked line-reveal headline, one-paragraph summary, three metrics, scroll cue. Work authorisation is deliberately **not** here: leading with "EU Blue Card eligible" read as pleading rather than as a qualification. It stays in the footer, where a recruiter checking eligibility will still find it.
 3. **Narrative** (the four morph acts) — Retrieval, Extraction, Agents, Shipped. Each carries real copy and tech chips from the resume.
 4. **Experience** — Redseven Entertainment (ProSiebenSat.1), Arcpeak, Boardd, WorkSpin. Reverse chronological, outcome-first bullets.
 5. **Projects** — InsightQL, bugSage, CLI Assistant.

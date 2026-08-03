@@ -23,7 +23,9 @@ export const resume = {
   name: 'Muhammad Anas',
   role: 'Full-Stack & AI Engineer',
   location: 'Munich, Germany',
-  eyebrow: 'Munich, Germany — EU Blue Card eligible',
+  // Work authorisation lives in the footer, not the hero: leading with it read
+  // as pleading rather than as a qualification.
+  eyebrow: 'Munich, Germany',
   summary:
     'Full-stack & AI engineer. Production LLM agents with tool calling and RAG, the TypeScript and Python services around them, and the AWS infrastructure underneath.',
   metrics: [
