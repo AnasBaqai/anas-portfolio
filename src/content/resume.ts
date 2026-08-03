@@ -129,7 +129,7 @@ export const resume = {
         'Cut query latency by 70% and peak database load by 50% by reshaping the MongoDB schemas and adding Redis caching. Also delivered a gym-management system with AWS S3 media storage, live streaming, and Firebase alerts',
       ],
     },
-  ] as const satisfies readonly Role[],
+  ] as readonly Role[],
 
   projects: [
     {
