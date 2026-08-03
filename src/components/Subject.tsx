@@ -105,7 +105,10 @@ export default function Subject() {
 
       const { start, end } = narrativeBounds();
       const progress = narrativeProgress(scrollY, start, end);
-      const { index, frac } = stageAt(progress);
+      const { index, frac: rawFrac } = stageAt(progress);
+      // Reduced motion: snap to the nearest formation instead of morphing
+      // between them, so the shape is still meaningful but never in transit.
+      const frac = reduced ? Math.round(rawFrac) : rawFrac;
       const s = progress * (FORMATION_COUNT - 1);
 
       const { cx, cy, scale } = journeyAt(index, frac, width, height);
