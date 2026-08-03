@@ -15,10 +15,13 @@ const serif = Instrument_Serif({
   weight: ['400'], style: ['italic'],
 });
 
+const SITE_URL = 'https://anasm.fyi';
+
 export const metadata: Metadata = {
-  // TODO: replace with the real domain before the first production deploy.
-  // Affects OpenGraph/Twitter absolute URLs only; harmless in dev and preview.
-  metadataBase: new URL('https://anasbaqai.dev'),
+  metadataBase: new URL(SITE_URL),
+  // Tells search engines which URL is the real one, so the Vercel preview
+  // domains do not compete with anasm.fyi for the same content.
+  alternates: { canonical: '/' },
   title: 'Muhammad Anas — Full-Stack & AI Engineer',
   description:
     'Full-Stack and AI Engineer in Munich. Production LLM agents with tool calling and RAG, the services around them, and the AWS infrastructure underneath.',
@@ -28,6 +31,8 @@ export const metadata: Metadata = {
       'Production LLM agents, tool calling, RAG, and the AWS infrastructure underneath. Munich, Germany.',
     type: 'website',
     locale: 'en_GB',
+    url: SITE_URL,
+    siteName: 'Muhammad Anas',
   },
   robots: { index: true, follow: true },
 };
