@@ -34,7 +34,6 @@ describe('readPalette', () => {
     document.documentElement.style.setProperty('--faint', '#52525B');
     document.documentElement.style.setProperty('--warn', '#FBBF24');
     document.documentElement.style.setProperty('--node', '#0A0A0C');
-    document.documentElement.style.setProperty('--ink', '#F4F4F5');
     const p = readPalette();
     expect(p.acc).toBe('#4F7CFF');
     expect(p.node).toBe('#0A0A0C');

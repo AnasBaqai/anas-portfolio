@@ -14,7 +14,8 @@ Single-page portfolio. Next.js App Router, TypeScript, Tailwind v4, no animation
 
 ## Architecture
 
-All copy lives in `src/content/resume.ts`. Components never hardcode text.
+All resume content lives in `src/content/resume.ts`, and components never paraphrase it.
+Section labels and other UI chrome are inline.
 
 The signature animation is one particle system that morphs across five formations
 and traverses the viewport, driven purely by scroll offset. It is split into pure,

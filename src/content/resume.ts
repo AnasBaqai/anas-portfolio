@@ -5,7 +5,6 @@ export interface Act {
   headingTail: string;
   body: string;
   chips: readonly string[];
-  formation: number;
   side: 'left' | 'right';
 }
 
@@ -39,7 +38,6 @@ export const resume = {
       headingTail: ' context',
       body: 'Documents become vectors. A question becomes a vector too. The neighbourhood that lights up is what the model actually gets to see — get this wrong and nothing downstream matters.',
       chips: ['pgvector', 'Pinecone', 'LangChain', 'RAG'],
-      formation: 1,
       side: 'left',
     },
     {
@@ -49,7 +47,6 @@ export const resume = {
       headingTail: ' out',
       body: "HR emails and scanned receipts flow through extract, validate, store. What the model isn't sure about gets flagged for a human instead of quietly guessed at.",
       chips: ['Python', 'FastAPI', 'Structured output', 'PostgreSQL'],
-      formation: 2,
       side: 'right',
     },
     {
@@ -59,7 +56,6 @@ export const resume = {
       headingTail: '',
       body: 'A router reads the question and hands it to the specialist agent that can answer it. Twelve typed tools underneath. Agents propose changes; a person approves them, applied in one transaction, logged.',
       chips: ['OpenAI Agents SDK', 'Responses API', 'Tool calling', 'NestJS'],
-      formation: 3,
       side: 'left',
     },
     {
@@ -69,7 +65,6 @@ export const resume = {
       headingTail: '',
       body: 'Three internal apps at ProSiebenSat.1, a pricing engine across 111 licensors, and a 200-endpoint platform. All on AWS, provisioned in Terraform, released on merge.',
       chips: ['ECS Fargate', 'Aurora', 'Terraform', 'GitLab CI/CD'],
-      formation: 4,
       side: 'right',
     },
   ] as const satisfies readonly Act[],

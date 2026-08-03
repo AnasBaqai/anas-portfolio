@@ -45,7 +45,6 @@ export default function Subject() {
     let linkCount = 0;
     let lastLinkAt = -Infinity;
     let palette: Palette = readPalette();
-    let visible = true;
 
     function rebuild() {
       width = window.innerWidth;
@@ -62,6 +61,7 @@ export default function Subject() {
       points = new Float32Array(n * 2);
       lit = new Float32Array(n);
       links = new Int32Array(n * 24); // generous cap; computeLinks stops when full
+      linkCount = 0;
       lastLinkAt = -Infinity;
     }
 
@@ -83,12 +83,6 @@ export default function Subject() {
       attributes: true, attributeFilter: ['data-theme'],
     });
 
-    const io = new IntersectionObserver(
-      ([entry]) => { visible = entry.isIntersecting; },
-      { threshold: 0 },
-    );
-    io.observe(canvas);
-
     function narrativeBounds() {
       const hero = document.getElementById('hero');
       const story = document.getElementById('story');
@@ -101,7 +95,7 @@ export default function Subject() {
     }
 
     const unsubscribe = subscribeToFrame((scrollY, time) => {
-      if (!visible || document.hidden) return;
+      if (document.hidden) return;
 
       const { start, end } = narrativeBounds();
       const progress = narrativeProgress(scrollY, start, end);
@@ -154,7 +148,6 @@ export default function Subject() {
       window.removeEventListener('resize', onResize);
       window.clearTimeout(resizeTimer);
       themeObserver.disconnect();
-      io.disconnect();
     };
   }, []);
 

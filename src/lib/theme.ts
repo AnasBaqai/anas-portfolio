@@ -7,7 +7,6 @@ export interface Palette {
   faint: string;
   warn: string;
   node: string;
-  ink: string;
 }
 
 const STORAGE_KEY = 'anas-theme';
@@ -46,6 +45,5 @@ export function readPalette(): Palette {
     faint: g('--faint'),
     warn: g('--warn'),
     node: g('--node'),
-    ink: g('--ink'),
   };
 }

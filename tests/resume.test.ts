@@ -23,8 +23,4 @@ describe('resume content', () => {
     expect(resume.contact.email).toBe('anashabib139@gmail.com');
     expect(resume.contact).not.toHaveProperty('formEndpoint');
   });
-
-  it('gives every act a formation index matching its position', () => {
-    resume.acts.forEach((act, i) => expect(act.formation).toBe(i + 1));
-  });
 });
