@@ -40,16 +40,20 @@ resume line.
 | `--surface` | `#111116` | `#FFFFFF` |
 | `--ink` | `#F4F4F5` | `#09090B` |
 | `--dim` | `#A1A1AA` | `#52525B` |
-| `--faint` | `#52525B` | `#71717A` |
+| `--faint` | `#8A8A94` | `#71717A` |
 | `--line` | `#232329` | `#D4D4D8` |
 | `--acc` (primary accent) | `#4F7CFF` | `#2563EB` |
-| `--acc2` (secondary accent) | `#7CE0C3` | `#0D9488` |
+| `--acc2` (secondary accent) | `#7CE0C3` | `#0F766E` |
 | `--warn` | `#FBBF24` | `#D97706` |
 | `--node` (canvas node fill) | `#0A0A0C` | `#FFFFFF` |
 
 Light-mode `--faint` is deliberately darker than the dark-mode equivalent: at `#A1A1AA` on
 `#FAFAF9` the canvas particles measured ~2.3:1 and washed out. This was caught and fixed
-during mockup verification.
+during mockup verification. Dark `--faint` was later raised from `#52525B` to `#8A8A94`
+because the original measured 2.56:1 against `--bg`; it is used for body-sized labels in
+eight components, which need 4.5:1, and it now measures 5.79:1. Light `--acc2` was darkened
+from `#0D9488` to `#0F766E` because the original measured 3.59:1 and is used for body-sized
+text in the project taglines and publication venue; it now measures 5.24:1.
 
 Theme is driven by `data-theme` on `<html>`. Default dark; a header toggle flips it and
 persists to `localStorage`. Initial value respects `prefers-color-scheme` when no stored
@@ -140,8 +144,9 @@ The animation runs on mobile — it is not disabled. Adaptations:
 - Canvas backing store capped at `devicePixelRatio ≤ 2`.
 - Text panels stack full-width; the alternating left/right layout collapses to left-aligned.
 - The progress spine is hidden below 900px.
-- `requestAnimationFrame` loop halts when the canvas is off-screen (IntersectionObserver)
-  and when `document.hidden`.
+- The `requestAnimationFrame` callback early-returns when `document.hidden` is true. The
+  canvas is `fixed inset-0`, so it has no off-screen state — an IntersectionObserver would
+  be dead code.
 
 **Performance budget:** 60fps on a mid-tier Android device. If the spatial-grid
 optimisation does not get there, the fallback is reducing mobile particle count further
