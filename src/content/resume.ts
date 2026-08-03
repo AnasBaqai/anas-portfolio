@@ -129,18 +129,21 @@ export const resume = {
   projects: [
     {
       name: 'InsightQL',
+      url: 'https://github.com/AnasBaqai/InsightQL',
       tagline: 'AI Database Assistant',
       body: "A Next.js and NestJS tool that lets non-technical users query a database by typing a question in plain English, using LangChain's SQL agent over OpenAI GPT. Gets people an answer roughly 3x faster than writing the SQL themselves.",
       chips: ['Next.js', 'NestJS', 'LangChain', 'OpenAI GPT'],
     },
     {
       name: 'bugSage',
+      url: 'https://github.com/AnasBaqai/bugSage',
       tagline: 'AI Debugging Assistant',
       body: 'A FastAPI chatbot that pulls relevant docs and past issues out of a Pinecone vector database (RAG) before answering, so its fixes for Express.js bugs match the code you are actually running.',
       chips: ['FastAPI', 'Pinecone', 'RAG', 'PyTorch'],
     },
     {
       name: 'CLI Assistant',
+      url: 'https://github.com/AnasBaqai/personal_cli_assistant',
       tagline: 'Agentic Terminal Tool',
       body: 'A Python assistant that runs entirely offline on a local model via Ollama, with an agentic loop that chains five tools together through function calling.',
       chips: ['Python', 'Ollama', 'Function calling'],
@@ -164,6 +167,7 @@ export const resume = {
 
   publication: {
     title: 'Deep Learning for User Mobility Prediction in RIS-Assisted 6G THz Networks',
+    url: 'https://ieeexplore.ieee.org/document/11119895',
     venue: 'IEEE',
     body: 'Benchmarked deep learning models for predicting user movement in next-generation (6G) mobile networks, to keep connections stable as users move.',
   },

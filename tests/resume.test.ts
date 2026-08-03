@@ -24,3 +24,35 @@ describe('resume content', () => {
     expect(resume.contact).not.toHaveProperty('formEndpoint');
   });
 });
+
+describe('outbound links', () => {
+  // These URLs were extracted from the hyperlink annotations in the source CV
+  // PDF, not typed from memory. Keep them in sync with public/anas-cv.pdf.
+  const EXPECTED = {
+    InsightQL: 'https://github.com/AnasBaqai/InsightQL',
+    bugSage: 'https://github.com/AnasBaqai/bugSage',
+    'CLI Assistant': 'https://github.com/AnasBaqai/personal_cli_assistant',
+  } as const;
+
+  it('gives every project the repo link from the CV', () => {
+    for (const project of resume.projects) {
+      expect(project.url, `${project.name} has no url`).toBe(
+        EXPECTED[project.name as keyof typeof EXPECTED],
+      );
+    }
+  });
+
+  it('links the publication to its IEEE Xplore record', () => {
+    expect(resume.publication.url).toBe('https://ieeexplore.ieee.org/document/11119895');
+  });
+
+  it('uses https everywhere, so no link downgrades the connection', () => {
+    const urls = [
+      ...resume.projects.map((p) => p.url),
+      resume.publication.url,
+      resume.contact.linkedin,
+      resume.contact.github,
+    ];
+    for (const u of urls) expect(u.startsWith('https://'), `${u} is not https`).toBe(true);
+  });
+});

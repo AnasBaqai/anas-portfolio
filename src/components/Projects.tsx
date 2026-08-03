@@ -13,7 +13,30 @@ export default function Projects() {
               key={project.name}
               className="border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--acc)]"
             >
-              <h3 className="font-display text-lg font-extrabold tracking-tight">{project.name}</h3>
+              <h3 className="font-display text-lg font-extrabold tracking-tight">
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${project.name} — source on GitHub (opens in a new tab)`}
+                  className="group inline-flex items-baseline gap-1.5 transition-colors hover:text-[var(--acc)]"
+                >
+                  {project.name}
+                  {/* Arrow leans out on hover — the affordance that says "leaves the page". */}
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-3 w-3 shrink-0 self-center text-[var(--faint)] transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--acc)]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 17 17 7M9 7h8v8" />
+                  </svg>
+                </a>
+              </h3>
               <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
                 {project.tagline}
               </p>

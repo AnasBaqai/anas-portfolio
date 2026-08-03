@@ -25,7 +25,27 @@ export default function Credentials() {
           <h2 className="display-lg mt-4 mb-8">Research</h2>
           <div className="border-t border-[var(--line)] pt-4">
             <h3 className="max-w-[45ch] font-display text-base font-extrabold tracking-tight">
-              {resume.publication.title}
+              <a
+                href={resume.publication.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${resume.publication.title} — read on IEEE Xplore (opens in a new tab)`}
+                className="group inline transition-colors hover:text-[var(--acc)]"
+              >
+                {resume.publication.title}
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="ml-1.5 inline h-3 w-3 shrink-0 align-baseline text-[var(--faint)] transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--acc)]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M7 17 17 7M9 7h8v8" />
+                </svg>
+              </a>
             </h3>
             <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
               {resume.publication.venue}
