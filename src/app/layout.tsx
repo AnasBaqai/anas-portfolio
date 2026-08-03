@@ -16,9 +16,20 @@ const serif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  // TODO: replace with the real domain before the first production deploy.
+  // Affects OpenGraph/Twitter absolute URLs only; harmless in dev and preview.
+  metadataBase: new URL('https://anasbaqai.dev'),
   title: 'Muhammad Anas — Full-Stack & AI Engineer',
   description:
     'Full-Stack and AI Engineer in Munich. Production LLM agents with tool calling and RAG, the services around them, and the AWS infrastructure underneath.',
+  openGraph: {
+    title: 'Muhammad Anas — Full-Stack & AI Engineer',
+    description:
+      'Production LLM agents, tool calling, RAG, and the AWS infrastructure underneath. Munich, Germany.',
+    type: 'website',
+    locale: 'en_GB',
+  },
+  robots: { index: true, follow: true },
 };
 
 // Runs before first paint so the correct theme is applied without a flash.
