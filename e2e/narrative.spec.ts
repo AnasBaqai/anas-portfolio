@@ -61,6 +61,69 @@ async function scrollToNarrativeFraction(page: Page, fraction: number) {
   await waitForTwoFrames(page);
 }
 
+/**
+ * Scroll to a fraction of the EPILOGUE — the stretch after the narrative ends,
+ * which is roughly half the page (Experience, Projects, Skills, Credentials,
+ * Contact). Mirrors Subject.tsx's epilogue range for the same reason as above.
+ */
+async function scrollToEpilogueFraction(page: Page, fraction: number) {
+  await page.evaluate((f) => {
+    const story = document.getElementById('story')!;
+    const start = story.offsetTop + story.offsetHeight - window.innerHeight * 0.5;
+    const end = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo(0, start + (end - start) * f);
+  }, fraction);
+  await waitForTwoFrames(page);
+}
+
+test.describe('the epilogue', () => {
+  test('keeps travelling after the narrative instead of freezing', async ({ page }) => {
+    await page.goto('/');
+    await waitForTwoFrames(page);
+
+    const samples: Sample[] = [];
+    for (const f of [0, 0.25, 0.5, 0.75, 1]) {
+      await scrollToEpilogueFraction(page, f);
+      samples.push(await sampleCanvas(page));
+    }
+
+    for (const s of samples) expect(s.ink, 'subject must stay drawn past the narrative').toBeGreaterThan(50);
+
+    // The reported bug was a subject parked for the whole second half of the
+    // page. A frozen subject makes every centroid identical.
+    const xs = samples.map((s) => s.centroidX);
+    expect(
+      Math.max(...xs) - Math.min(...xs),
+      'subject must traverse during the epilogue, not sit still',
+    ).toBeGreaterThan(0.3);
+
+    // ...and the SHAPE has to keep changing too. The first version of this test
+    // asserted only position, which is why it passed while the formation was
+    // still frozen as three clusters that merely slid around — the exact thing
+    // the user reported. Ink count is the cheapest proxy for "different shape".
+    const inks = samples.map((s) => s.ink);
+    expect(
+      Math.max(...inks) / Math.min(...inks),
+      'formation must keep morphing during the epilogue, not just translate',
+    ).toBeGreaterThan(2);
+  });
+
+  test('hands off from the narrative without jumping', async ({ page }) => {
+    await page.goto('/');
+    await waitForTwoFrames(page);
+
+    // Last frame of the narrative and first frame of the epilogue are the same
+    // scroll position, so the subject must be in the same place in both.
+    await scrollToNarrativeFraction(page, 1);
+    const endOfNarrative = await sampleCanvas(page);
+    await scrollToEpilogueFraction(page, 0);
+    const startOfEpilogue = await sampleCanvas(page);
+
+    expect(Math.abs(endOfNarrative.centroidX - startOfEpilogue.centroidX)).toBeLessThan(0.05);
+    expect(Math.abs(endOfNarrative.centroidY - startOfEpilogue.centroidY)).toBeLessThan(0.05);
+  });
+});
+
 test.describe('the morphing subject', () => {
   test('renders a different shape in a different place at each scroll depth', async ({ page }) => {
     await page.goto('/');

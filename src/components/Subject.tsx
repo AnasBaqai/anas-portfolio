@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { narrativeProgress, subscribeToFrame } from '@/lib/scroll';
 import {
-  buildFormations, interpolateInto, journeyAt, stageAt, FORMATION_COUNT,
+  buildFormations, epilogueAt, epilogueStage, interpolateInto, journeyAt, stageAt,
+  FORMATION_COUNT,
 } from '@/lib/formations';
 import { computeLinks } from '@/lib/neighbors';
 import {
@@ -94,19 +95,34 @@ export default function Subject() {
       return { start, end };
     }
 
+    /** Furthest scrollY the document allows — the end of the epilogue. */
+    function maxScroll() {
+      return Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    }
+
     const unsubscribe = subscribeToFrame((scrollY, time) => {
       if (document.hidden) return;
 
       const { start, end } = narrativeBounds();
       const progress = narrativeProgress(scrollY, start, end);
-      const { index, frac: rawFrac } = stageAt(progress);
+
+      // Past the narrative the formation would stop changing, leaving the
+      // subject frozen through Experience, Projects, Skills and Contact — over
+      // half the page. The epilogue keeps it both travelling AND morphing, by
+      // running the five formations in reverse back to the opening cloud.
+      const epilogue = narrativeProgress(scrollY, end, maxScroll());
+      const shapeProgress = epilogue > 0 ? epilogueStage(epilogue) : progress;
+
+      const { index, frac: rawFrac } = stageAt(shapeProgress);
       // Reduced motion: snap to the nearest formation instead of morphing
       // between them, so the shape is still meaningful but never in transit.
       const frac = reduced ? Math.round(rawFrac) : rawFrac;
-      const s = progress * (FORMATION_COUNT - 1);
+      const s = shapeProgress * (FORMATION_COUNT - 1);
 
-      const { cx, cy, scale } = journeyAt(index, frac, width, height);
-      const spin = reduced ? 0 : progress * 0.9;
+      const { cx, cy, scale } = epilogue > 0
+        ? epilogueAt(epilogue, width, height)
+        : journeyAt(index, frac, width, height);
+      const spin = reduced ? 0 : (progress + epilogue * 0.85) * 0.9;
 
       interpolateInto(formations, index, frac, points);
 

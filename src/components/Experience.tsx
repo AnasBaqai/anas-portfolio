@@ -1,4 +1,5 @@
 import { resume } from '@/content/resume';
+import ExternalArrow from './ExternalArrow';
 
 export default function Experience() {
   return (
@@ -12,7 +13,20 @@ export default function Experience() {
             <li key={`${role.company}-${role.period}`} className="border-t border-[var(--line)] pt-6">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <h3 className="font-display text-xl font-extrabold tracking-tight">{role.title}</h3>
-                <span className="font-body text-[15px] text-[var(--acc)]">{role.company}</span>
+                {role.url ? (
+                  <a
+                    href={role.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${role.company} — visit the live product (opens in a new tab)`}
+                    className="group inline-flex items-baseline gap-1.5 font-body text-[15px] text-[var(--acc)] underline decoration-[var(--line)] decoration-1 underline-offset-4 transition-colors hover:decoration-[var(--acc)]"
+                  >
+                    {role.company}
+                    <ExternalArrow className="self-center" />
+                  </a>
+                ) : (
+                  <span className="font-body text-[15px] text-[var(--acc)]">{role.company}</span>
+                )}
                 {role.context && (
                   <span className="font-body text-[13px] text-[var(--faint)]">({role.context})</span>
                 )}

@@ -11,6 +11,8 @@ export interface Act {
 export interface Role {
   title: string;
   company: string;
+  /** Live product, where there is one to show. */
+  url?: string;
   context?: string;
   location: string;
   period: string;
@@ -21,7 +23,9 @@ export const resume = {
   name: 'Muhammad Anas',
   role: 'Full-Stack & AI Engineer',
   location: 'Munich, Germany',
-  eyebrow: 'Munich, Germany — EU Blue Card eligible',
+  // Work authorisation lives in the footer, not the hero: leading with it read
+  // as pleading rather than as a qualification.
+  eyebrow: 'Munich, Germany',
   summary:
     'Full-stack & AI engineer. Production LLM agents with tool calling and RAG, the TypeScript and Python services around them, and the AWS infrastructure underneath.',
   metrics: [
@@ -103,6 +107,8 @@ export const resume = {
     {
       title: 'Backend Engineer (Freelance)',
       company: 'Boardd',
+      // Supplied by the user — this URL is not in the CV PDF.
+      url: 'https://boarddd-frontend-murex.vercel.app/',
       context: 'Enterprise Business Platform',
       location: 'Remote',
       period: 'May 2025 — Present',
@@ -129,18 +135,21 @@ export const resume = {
   projects: [
     {
       name: 'InsightQL',
+      url: 'https://github.com/AnasBaqai/InsightQL',
       tagline: 'AI Database Assistant',
       body: "A Next.js and NestJS tool that lets non-technical users query a database by typing a question in plain English, using LangChain's SQL agent over OpenAI GPT. Gets people an answer roughly 3x faster than writing the SQL themselves.",
       chips: ['Next.js', 'NestJS', 'LangChain', 'OpenAI GPT'],
     },
     {
       name: 'bugSage',
+      url: 'https://github.com/AnasBaqai/bugSage',
       tagline: 'AI Debugging Assistant',
       body: 'A FastAPI chatbot that pulls relevant docs and past issues out of a Pinecone vector database (RAG) before answering, so its fixes for Express.js bugs match the code you are actually running.',
       chips: ['FastAPI', 'Pinecone', 'RAG', 'PyTorch'],
     },
     {
       name: 'CLI Assistant',
+      url: 'https://github.com/AnasBaqai/personal_cli_assistant',
       tagline: 'Agentic Terminal Tool',
       body: 'A Python assistant that runs entirely offline on a local model via Ollama, with an agentic loop that chains five tools together through function calling.',
       chips: ['Python', 'Ollama', 'Function calling'],
@@ -164,6 +173,7 @@ export const resume = {
 
   publication: {
     title: 'Deep Learning for User Mobility Prediction in RIS-Assisted 6G THz Networks',
+    url: 'https://ieeexplore.ieee.org/document/11119895',
     venue: 'IEEE',
     body: 'Benchmarked deep learning models for predicting user movement in next-generation (6G) mobile networks, to keep connections stable as users move.',
   },

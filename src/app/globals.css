@@ -12,6 +12,9 @@
   --acc2: #7CE0C3;
   --warn: #FBBF24;
   --node: #0A0A0C;
+  --grain-opacity: 0.055;
+  --dot: #2A2A33;
+  --dot-opacity: 0.7;
 }
 
 :root[data-theme="light"] {
@@ -19,12 +22,15 @@
   --surface: #FFFFFF;
   --ink: #09090B;
   --dim: #52525B;
-  --faint: #71717A;
+  --faint: #6A6A73;
   --line: #D4D4D8;
   --acc: #2563EB;
   --acc2: #0F766E;
   --warn: #D97706;
   --node: #FFFFFF;
+  --grain-opacity: 0.05;
+  --dot: #D6D6D2;
+  --dot-opacity: 0.7;
 }
 
 @theme inline {
@@ -44,6 +50,30 @@ body {
   color: var(--ink);
   transition: background 0.4s, color 0.4s;
   overflow-x: hidden;
+}
+
+/* Background texture: fractal-noise grain + a dot lattice, layered.
+   Both are fixed and decorative, sitting under the canvas (z-1) and the
+   content (z-2). Pure CSS — the grain is one inline SVG filter, no image
+   files, and pseudo-elements stay out of the accessibility tree. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body::after {
+  opacity: var(--dot-opacity);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 26px 26px;
 }
 
 /* Content must be readable before JS runs and with JS disabled.
@@ -70,8 +100,8 @@ body {
 .display-xl {
   font-family: var(--font-display), system-ui, sans-serif;
   font-weight: 900;
-  font-size: clamp(2.4rem, 7.6vw, 6.6rem);
-  line-height: 0.88;
+  font-size: clamp(1.75rem, 4.6vw, 3.9rem);
+  line-height: 0.92;
   letter-spacing: -0.055em;
   text-transform: uppercase;
 }
@@ -79,8 +109,8 @@ body {
 .display-lg {
   font-family: var(--font-display), system-ui, sans-serif;
   font-weight: 900;
-  font-size: clamp(1.8rem, 4.4vw, 3.5rem);
-  line-height: 0.98;
+  font-size: clamp(1.5rem, 3.2vw, 2.7rem);
+  line-height: 1;
   letter-spacing: -0.05em;
   text-transform: uppercase;
 }

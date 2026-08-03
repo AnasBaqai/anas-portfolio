@@ -1,4 +1,5 @@
 import { resume } from '@/content/resume';
+import ExternalArrow from './ExternalArrow';
 
 export default function Projects() {
   return (
@@ -11,9 +12,28 @@ export default function Projects() {
           {resume.projects.map((project) => (
             <article
               key={project.name}
-              className="border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--acc)]"
+              className="relative border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--acc)] focus-within:border-[var(--acc)]"
             >
-              <h3 className="font-display text-lg font-extrabold tracking-tight">{project.name}</h3>
+              <h3 className="font-display text-lg font-extrabold tracking-tight">
+                {/*
+                  The whole card is the click target, via a stretched ::after on
+                  this anchor rather than an element wrapping the card. That keeps
+                  exactly one link per card — no nested interactive elements, and
+                  the accessible name stays the project title. Because ::after
+                  belongs to the anchor, hovering anywhere on the card also
+                  triggers the anchor's own hover styles.
+                */}
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${project.name} — source on GitHub (opens in a new tab)`}
+                  className="group inline-flex items-baseline gap-1.5 transition-colors hover:text-[var(--acc)] after:absolute after:inset-0 after:content-['']"
+                >
+                  {project.name}
+                  <ExternalArrow className="self-center" />
+                </a>
+              </h3>
               <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
                 {project.tagline}
               </p>

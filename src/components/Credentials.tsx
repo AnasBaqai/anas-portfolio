@@ -1,4 +1,5 @@
 import { resume } from '@/content/resume';
+import ExternalArrow from './ExternalArrow';
 
 export default function Credentials() {
   return (
@@ -25,7 +26,16 @@ export default function Credentials() {
           <h2 className="display-lg mt-4 mb-8">Research</h2>
           <div className="border-t border-[var(--line)] pt-4">
             <h3 className="max-w-[45ch] font-display text-base font-extrabold tracking-tight">
-              {resume.publication.title}
+              <a
+                href={resume.publication.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${resume.publication.title} — read on IEEE Xplore (opens in a new tab)`}
+                className="group inline transition-colors hover:text-[var(--acc)]"
+              >
+                {resume.publication.title}
+                <ExternalArrow className="ml-1.5 inline align-baseline" />
+              </a>
             </h3>
             <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
               {resume.publication.venue}

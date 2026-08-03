@@ -11,7 +11,8 @@ ten-second recruiter scan, and leave a technical reviewer convinced the person b
 things listed.
 
 **Success criteria**
-- Name, role, location, and work-authorisation status are readable without scrolling.
+- Name, role, and location are readable without scrolling. (Work-authorisation status was
+  originally in this list; it moved to the footer — see Page Structure.)
 - The three headline outcomes (10h/week saved, 60% faster, 111 licensors) are visible above the fold.
 - A recruiter can reach email/LinkedIn/GitHub/CV from any scroll position.
 - Loads and animates at 60fps on a mid-tier phone.
@@ -40,7 +41,7 @@ resume line.
 | `--surface` | `#111116` | `#FFFFFF` |
 | `--ink` | `#F4F4F5` | `#09090B` |
 | `--dim` | `#A1A1AA` | `#52525B` |
-| `--faint` | `#8A8A94` | `#71717A` |
+| `--faint` | `#8A8A94` | `#6A6A73` |
 | `--line` | `#232329` | `#D4D4D8` |
 | `--acc` (primary accent) | `#4F7CFF` | `#2563EB` |
 | `--acc2` (secondary accent) | `#7CE0C3` | `#0F766E` |
@@ -53,7 +54,31 @@ during mockup verification. Dark `--faint` was later raised from `#52525B` to `#
 because the original measured 2.56:1 against `--bg`; it is used for body-sized labels in
 eight components, which need 4.5:1, and it now measures 5.79:1. Light `--acc2` was darkened
 from `#0D9488` to `#0F766E` because the original measured 3.59:1 and is used for body-sized
-text in the project taglines and publication venue; it now measures 5.24:1.
+text in the project taglines and publication venue; it now measures 5.24:1. Light `--faint`
+was later darkened again from `#71717A` to `#6A6A73` when the background texture landed: the
+grain lifts the effective background, which cut `#71717A` to 4.55:1 — passing, but only
+0.05 above the floor. `#6A6A73` restores the margin at 5.04:1 over the composited background.
+
+`--warn` is used **only inside the aria-hidden canvas**, never as text, so the WCAG text
+threshold does not apply to it. It is the one token deliberately below 4.5:1 in light mode.
+
+### Background texture
+
+Two fixed, decorative layers under everything (`body::before` and `body::after`, `z-index: 0`,
+`pointer-events: none`, below the canvas at `z-1` and the content at `z-2`):
+
+- **Grain** — one inline `feTurbulence` fractal-noise SVG, `--grain-opacity` (0.055 dark /
+  0.05 light). No image file.
+- **Dots** — a `radial-gradient` lattice in `--dot` at 26px, `--dot-opacity` 0.7.
+
+Because text now sits on a composited background rather than the flat token, **every text
+token is measured against the dominant composited background**, not against `--bg`. That
+check is automated in `e2e/accessibility.spec.ts` and it fails if a texture opacity is
+raised past the AA floor — verified by mutation. Light-mode grain is capped at 0.05 for this
+reason: the 0.085 that looked best in the mockup pushed `--faint` to 4.51:1.
+
+Measured cost: 0/222 frames over 16.7ms while scrolling the full page at 4× CPU throttle on
+a 390×844 viewport. The layers are `fixed`, so they composite rather than repaint per frame.
 
 Theme is driven by `data-theme` on `<html>`. Default dark; a header toggle flips it and
 persists to `localStorage`. Initial value respects `prefers-color-scheme` when no stored
@@ -63,7 +88,8 @@ together.
 
 ### Typography
 
-- **Display / headings:** Archivo 900, uppercase, `letter-spacing: -0.05em`, `line-height: 0.88`, sized `clamp(2.4rem, 7.6vw, 6.6rem)`.
+- **Display / hero (`display-xl`):** Archivo 900, uppercase, `letter-spacing: -0.055em`, `line-height: 0.92`, sized `clamp(1.75rem, 4.6vw, 3.9rem)` → 62px at 1440px. Reduced in two steps from an original `6.6rem` cap (106px), which read as oversized.
+- **Display / section headings (`display-lg`):** same family, `line-height: 1`, sized `clamp(1.5rem, 3.2vw, 2.7rem)` → 43px at 1440px. **This had to shrink with the hero.** At the original `3.5rem` cap it rendered at 56px, so once the hero came down to 62px the two levels were only 11% apart and read as the same level. The h1:h2 ratio is now 1.44 on desktop and laptop.
 - **Body / UI:** Space Grotesk 400–600.
 - **Accent:** Instrument Serif italic, used only for one emphasised word per heading, in `--acc2`.
 - Loaded via `next/font/google` with `display: swap` and subset `latin`.
@@ -119,6 +145,38 @@ discriminating test for this feature is that **at 25%, 50% and 75% scroll depth 
 sees different shapes in different places** — not one shape recoloured. Any implementation
 that fails that test has regressed.
 
+### The epilogue
+
+The narrative ends at `#story`, which is only ~50% of total scroll height. Originally
+`narrativeProgress` clamped to 1 there, so the subject **parked for the entire second half of
+the page** — Experience, Projects, Skills, Credentials and Contact all sat behind a frozen
+shape. `EPILOGUE` continues the journey past that point:
+
+```
+hand-off     [0.42, 0.44, 0.50]   ← identical to JOURNEY[4], so there is no jump
+experience   [0.80, 0.58, 0.36]
+projects     [0.18, 0.40, 0.30]   ← crosses back to the far left
+skills       [0.72, 0.50, 0.24]
+contact      [0.45, 0.56, 0.18]   ← settles small and low
+```
+
+**The epilogue also keeps morphing**, by running the five formations in reverse —
+constellation → agents → pipeline → embedding → cloud — dissolving back to the shape the page
+opened with. A first attempt moved the subject but left the formation frozen at the
+constellation, so it read as "three circles sliding around"; travel alone is not enough. Note
+that this needs no sixth formation, which the risks section rules out.
+
+There is one `EPILOGUE` position keyframe per formation so shape changes and position changes
+stay in step. Overlays follow the same reversed stage, so each formation keeps its own overlay
+on the way back. Still a pure function of `scrollY`; the subject shrinks throughout so it
+recedes as the reader moves into the CV proper.
+
+Guarded by two e2e tests: a seamless hand-off, and one asserting **both** traversal (>0.3
+centroid spread) **and** shape change (>2× ink ratio). The shape assertion exists because the
+first version of that test checked position only and therefore passed while the formation was
+frozen — the regression the user actually reported. Both were mutation-tested: disconnecting
+`epilogueAt` fails the first, re-freezing the formation fails the second.
+
 ### Scrub semantics
 
 Particle position is a **pure function of scroll offset** — interpolation between
@@ -143,6 +201,9 @@ The animation runs on mobile — it is not disabled. Adaptations:
   recompute links at 20fps rather than every frame while drawing them every frame.
 - Canvas backing store capped at `devicePixelRatio ≤ 2`.
 - Text panels stack full-width; the alternating left/right layout collapses to left-aligned.
+- The act panels' enter/exit slide is capped at **6% of viewport width**. A flat 70px offset
+  was 18% of a 390px phone and pushed the copy past both screen edges while it faded in.
+  Desktop is unaffected (6% of 1440px exceeds the 70px cap).
 - The progress spine is hidden below 900px.
 - The `requestAnimationFrame` callback early-returns when `document.hidden` is true. The
   canvas is `fixed inset-0`, so it has no off-screen state — an IntersectionObserver would
@@ -168,7 +229,7 @@ explicit requirement.
 ## Page Structure
 
 1. **Header** — name mark, anchor nav, theme toggle, CV download. Sticky, backdrop-blurred.
-2. **Hero** — eyebrow (Munich, EU Blue Card eligible), masked line-reveal headline, one-paragraph summary, three metrics, scroll cue.
+2. **Hero** — eyebrow (Munich, Germany), masked line-reveal headline, one-paragraph summary, three metrics, scroll cue. Work authorisation is deliberately **not** here: leading with "EU Blue Card eligible" read as pleading rather than as a qualification. It stays in the footer, where a recruiter checking eligibility will still find it.
 3. **Narrative** (the four morph acts) — Retrieval, Extraction, Agents, Shipped. Each carries real copy and tech chips from the resume.
 4. **Experience** — Redseven Entertainment (ProSiebenSat.1), Arcpeak, Boardd, WorkSpin. Reverse chronological, outcome-first bullets.
 5. **Projects** — InsightQL, bugSage, CLI Assistant.
