@@ -1,0 +1,6 @@
+.superpowers/
+.playwright-mcp/
+node_modules/
+.next/
+out/
+.env*.local

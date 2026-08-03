@@ -1,0 +1,236 @@
+# Portfolio Website — Muhammad Anas
+
+**Date:** 2026-08-03
+**Status:** Approved (design locked)
+
+## Purpose
+
+A single-page portfolio for Muhammad Anas — Full-Stack & AI Engineer, Munich — aimed at
+**EU/German recruiters and hiring managers**. It has to do two jobs at once: survive a
+ten-second recruiter scan, and leave a technical reviewer convinced the person built the
+things listed.
+
+**Success criteria**
+- Name, role, location, and work-authorisation status are readable without scrolling.
+- The three headline outcomes (10h/week saved, 60% faster, 111 licensors) are visible above the fold.
+- A recruiter can reach email/LinkedIn/GitHub/CV from any scroll position.
+- Loads and animates at 60fps on a mid-tier phone.
+- No dependency on a backend, database, or paid service.
+
+**Non-goals**
+- Blog, CMS, i18n, analytics, dark/light auto-detection beyond `prefers-color-scheme`.
+- Contact form (explicitly declined — links only).
+- Case-study detail pages.
+
+## Content Source
+
+All copy derives from `anas_two_pages.pdf` (the resume). No invented facts, metrics, or
+employers. Where the site paraphrases for tone, the underlying claim must trace to a
+resume line.
+
+## Visual Design
+
+**Direction:** Editorial / Swiss, dark by default, light mode available.
+
+### Tokens
+
+| Token | Dark | Light |
+|---|---|---|
+| `--bg` | `#0A0A0C` | `#FAFAF9` |
+| `--surface` | `#111116` | `#FFFFFF` |
+| `--ink` | `#F4F4F5` | `#09090B` |
+| `--dim` | `#A1A1AA` | `#52525B` |
+| `--faint` | `#52525B` | `#71717A` |
+| `--line` | `#232329` | `#D4D4D8` |
+| `--acc` (primary accent) | `#4F7CFF` | `#2563EB` |
+| `--acc2` (secondary accent) | `#7CE0C3` | `#0D9488` |
+| `--warn` | `#FBBF24` | `#D97706` |
+| `--node` (canvas node fill) | `#0A0A0C` | `#FFFFFF` |
+
+Light-mode `--faint` is deliberately darker than the dark-mode equivalent: at `#A1A1AA` on
+`#FAFAF9` the canvas particles measured ~2.3:1 and washed out. This was caught and fixed
+during mockup verification.
+
+Theme is driven by `data-theme` on `<html>`. Default dark; a header toggle flips it and
+persists to `localStorage`. Initial value respects `prefers-color-scheme` when no stored
+preference exists. **Every canvas colour is read from CSS custom properties via
+`getComputedStyle`, re-cached on theme change** — one flip must drive DOM and canvas
+together.
+
+### Typography
+
+- **Display / headings:** Archivo 900, uppercase, `letter-spacing: -0.05em`, `line-height: 0.88`, sized `clamp(2.4rem, 7.6vw, 6.6rem)`.
+- **Body / UI:** Space Grotesk 400–600.
+- **Accent:** Instrument Serif italic, used only for one emphasised word per heading, in `--acc2`.
+- Loaded via `next/font/google` with `display: swap` and subset `latin`.
+
+### Layout
+
+Strict grid, generous whitespace, one hairline vertical rule as the only decoration.
+Content max-width 1240px, horizontal gutter `6vw`. Body copy capped at 60–75 characters.
+
+## The Signature Element: One Morphing Subject
+
+This is the defining feature and the main implementation risk. A single full-viewport
+`<canvas>`, `position: fixed`, `z-index: 1`, `pointer-events: none`, sitting behind the
+content. It hosts **one particle system that never resets** — it transforms in place as
+the user scrolls, and physically traverses the viewport.
+
+### Formations
+
+The same N particles interpolate between five formations, each built once in normalised
+local space (−1..1) and rebuilt on resize:
+
+| # | Formation | Meaning | Section |
+|---|---|---|---|
+| 0 | Scattered cloud | — | Hero |
+| 1 | Embedding field | RAG / vector retrieval | 01 Retrieval |
+| 2 | Three horizontal rails | Extraction pipeline | 02 Extraction |
+| 3 | Router core + 7 tool nodes | Agent tool-calling loop | 03 Agents |
+| 4 | Three clusters | Shipped projects | 04 Shipped |
+
+Each formation carries an **overlay** drawn on top, weighted by proximity to that stage
+(`w(n) = clamp(1 - |S - n|, 0, 1)`, where `S = progress × 4`):
+
+- **Embedding:** nearest-neighbour links, a query vector orbiting, its neighbourhood lighting in `--acc2`.
+- **Pipeline:** rails, three stage gates, packets flowing left→right; ~1 in 7 flagged `--warn` and rerouted upward — this represents "flags fields the model is unsure about" from the resume.
+- **Agent:** spokes from core to tool nodes, call pulses travelling out in `--acc` and returning in `--acc2`.
+- **Constellation:** dashed cluster hulls, intra-cluster links.
+
+### Journey
+
+The subject's `[x, y, scale]` is keyframed per stage and interpolated:
+
+```
+hero        [0.72, 0.50, 0.34]
+retrieval   [0.74, 0.48, 0.46]
+extraction  [0.28, 0.50, 0.44]   ← crosses to the far left
+agents      [0.70, 0.52, 0.40]
+shipped     [0.42, 0.44, 0.50]
+```
+
+Verified in the mockup: the rendered centroid moves 73% → 33% → 70% → 45% of viewport
+width across the scroll, with the ink-pixel count changing at each depth. The
+discriminating test for this feature is that **at 25%, 50% and 75% scroll depth the user
+sees different shapes in different places** — not one shape recoloured. Any implementation
+that fails that test has regressed.
+
+### Scrub semantics
+
+Particle position is a **pure function of scroll offset** — interpolation between
+formations, never a physics simulation or a one-shot trigger. Scrolling up must morph
+backwards exactly. A small sinusoidal idle drift (±0.012 local units) keeps it breathing
+when the user stops, and is the only non-deterministic component.
+
+### No scroll hijacking
+
+The page does **not** pin sections or intercept scroll. The canvas is `fixed` and reads
+`scrollY`; sections scroll normally. This is what makes the effect safe on touch devices —
+native scroll momentum is never fought.
+
+## Mobile
+
+The animation runs on mobile — it is not disabled. Adaptations:
+
+- Particle count: **180 desktop → 90 on viewports under 768px**.
+- The O(n²) nearest-neighbour loop in the embedding overlay is the one real performance
+  hazard (180 particles = ~16k pair checks per frame). Mitigation: compute links on a
+  **uniform spatial grid** (bucket size = link radius, check own + adjacent buckets), and
+  recompute links at 20fps rather than every frame while drawing them every frame.
+- Canvas backing store capped at `devicePixelRatio ≤ 2`.
+- Text panels stack full-width; the alternating left/right layout collapses to left-aligned.
+- The progress spine is hidden below 900px.
+- `requestAnimationFrame` loop halts when the canvas is off-screen (IntersectionObserver)
+  and when `document.hidden`.
+
+**Performance budget:** 60fps on a mid-tier Android device. If the spatial-grid
+optimisation does not get there, the fallback is reducing mobile particle count further
+(90 → 60) — *not* disabling the morph, since the animation working on mobile is an
+explicit requirement.
+
+## Accessibility
+
+- `prefers-reduced-motion: reduce` → the canvas renders the formation for the current
+  section **statically** (no morph interpolation, no idle drift, no overlay animation),
+  and panel reveals become instant. Content is never hidden behind motion.
+- The canvas is decorative: `aria-hidden="true"`, no text conveyed only through it.
+- All content is in the DOM and readable with JavaScript disabled — panels default to
+  `opacity: 1` in CSS, and the scroll script only *takes over* opacity once it runs.
+- Contrast: body text ≥4.5:1, large text ≥3:1, in **both** themes, verified independently.
+- Visible focus rings on every interactive element. Keyboard-reachable in visual order.
+- Heading hierarchy `h1 → h2 → h3`, no skipped levels.
+
+## Page Structure
+
+1. **Header** — name mark, anchor nav, theme toggle, CV download. Sticky, backdrop-blurred.
+2. **Hero** — eyebrow (Munich, EU Blue Card eligible), masked line-reveal headline, one-paragraph summary, three metrics, scroll cue.
+3. **Narrative** (the four morph acts) — Retrieval, Extraction, Agents, Shipped. Each carries real copy and tech chips from the resume.
+4. **Experience** — Redseven Entertainment (ProSiebenSat.1), Arcpeak, Boardd, WorkSpin. Reverse chronological, outcome-first bullets.
+5. **Projects** — InsightQL, bugSage, CLI Assistant.
+6. **Skills** — grouped as on the resume (Languages, AI & LLM, Backend, Frontend, Databases, Cloud & DevOps, Practices).
+7. **Education & Publication** — Passau MSc, FAST-NUCES BS, the IEEE 6G paper.
+8. **Contact** — plain links only: email, phone, LinkedIn, GitHub, CV download. No form, no backend.
+9. **Footer** — languages (English C1, German A1), work authorisation, copyright.
+
+## Architecture
+
+**Stack:** Next.js 15 (App Router) + TypeScript + Tailwind CSS v4. Deployed to Vercel.
+
+**No GSAP.** The mockup proved a hand-rolled `requestAnimationFrame` loop reading `scrollY`
+delivers the full effect. GSAP + ScrollTrigger would be ~50KB gzipped to replace roughly 60
+lines of arithmetic we have already written and verified. If a future section genuinely
+needs pinning or timeline sequencing, revisit then.
+
+**Runtime dependencies beyond Next/React/Tailwind: none.** Icons inline as SVG.
+
+### Modules
+
+| Module | Responsibility | Depends on |
+|---|---|---|
+| `content/resume.ts` | Every string and number on the site, typed. Single source of truth. | — |
+| `lib/theme.ts` | Read/write `data-theme`, persist to `localStorage`, expose a subscribe hook. | — |
+| `lib/scroll.ts` | One shared rAF loop + scroll-progress calculation. Consumers register callbacks. | — |
+| `lib/formations.ts` | Build the five formations in normalised space for a given N and aspect. Pure, no canvas. | — |
+| `lib/overlays.ts` | Draw functions, one per overlay, each `(ctx, state, weight, colors) => void`. Pure draw, no state. | — |
+| `components/Subject.tsx` | Owns the canvas, the particle array, theme colour cache, and the draw loop. | scroll, formations, overlays, theme |
+| `components/Act.tsx` | One narrative act: panel copy + scroll-driven enter/exit. | scroll |
+| `components/*` | Header, Hero, Experience, Projects, Skills, Contact, Footer — presentational, read from `resume.ts`. | content |
+
+`formations.ts` and `overlays.ts` are pure and independently testable — that is the point
+of splitting them out of the canvas component. `Subject.tsx` is the only module that
+touches canvas state, and it stays small enough to hold in one screen.
+
+### Testing
+
+The animation is visual and not usefully unit-tested end to end, but the arithmetic under
+it is:
+
+1. **`formations.test.ts`** — every formation returns exactly N points, all within the
+   normalised bounds, deterministic for a fixed seed.
+2. **`scroll.test.ts`** — progress is monotonic in `scrollY`, clamps to `[0,1]`, and
+   `stageAt(p)` round-trips: interpolating to stage *n* and back yields the original
+   positions (this is the property that guarantees scrubbing backwards works).
+3. **One Playwright check** — load the page, sample scroll depths 25/50/75%, assert the
+   canvas centroid differs by >15% of viewport width between samples and the ink-pixel
+   count differs. This is the automated form of "different shapes in different places",
+   and it is the regression guard for the whole feature.
+
+Contrast ratios and reduced-motion behaviour are verified manually against the checklist,
+in both themes.
+
+### Error handling
+
+There is no network, no user input, and no persistence beyond a theme string, so the
+failure surface is small:
+
+- **Canvas unavailable / context creation fails:** the canvas element is skipped entirely; the site is fully readable without it.
+- **`localStorage` throws** (private mode): fall back to `prefers-color-scheme`, do not persist.
+- **Fonts fail to load:** `display: swap` with a system-sans fallback stack; layout must not shift more than CLS 0.1.
+- **Resize / orientation change:** formations and canvas backing store rebuild; debounced to 150ms.
+
+## Open Risks
+
+1. **Mobile performance** is the one genuine unknown. Mitigations are specced above; the
+   escape hatch is fewer particles, never a disabled animation.
+2. **The morph must stay legible.** Five formations in one system is close to the ceiling —
+   adding a sixth is likely to make each one read as mush. Treat five as fixed.
