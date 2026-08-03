@@ -75,3 +75,36 @@ test.describe('outbound links', () => {
     await expect(link).toContainText('Boardd');
   });
 });
+
+test.describe('social share card', () => {
+  test('serves a 1200x630 PNG for link previews', async ({ page, request }) => {
+    await page.goto('/');
+
+    const url = await page.getAttribute('meta[property="og:image"]', 'content');
+    expect(url, 'og:image must be declared').toBeTruthy();
+
+    const res = await request.get(url!);
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain('image/png');
+
+    const body = await res.body();
+    // PNG signature, then width/height from the IHDR chunk. A broken font file
+    // or a Satori error would fail the build, but a blank or mis-sized card
+    // would not — this catches that.
+    expect(body.subarray(0, 8).toString('hex'), 'not a PNG').toBe('89504e470d0a1a0a');
+    expect(body.readUInt32BE(16)).toBe(1200);
+    expect(body.readUInt32BE(20)).toBe(630);
+    // A card that rendered as an empty rectangle would be tiny.
+    expect(body.byteLength, 'card looks empty').toBeGreaterThan(20000);
+  });
+
+  test('declares the tags LinkedIn and X actually read', async ({ page }) => {
+    await page.goto('/');
+    const get = (sel: string) => page.getAttribute(sel, 'content');
+    expect(await get('meta[property="og:image:width"]')).toBe('1200');
+    expect(await get('meta[property="og:image:height"]')).toBe('630');
+    expect(await get('meta[name="twitter:card"]')).toBe('summary_large_image');
+    // Without alt, the card is unlabelled for screen readers on social.
+    expect((await get('meta[property="og:image:alt"]'))?.length).toBeGreaterThan(10);
+  });
+});
