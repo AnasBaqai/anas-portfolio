@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root,
+:root[data-theme="dark"] {
+  --bg: #0A0A0C;
+  --surface: #111116;
+  --ink: #F4F4F5;
+  --dim: #A1A1AA;
+  --faint: #52525B;
+  --line: #232329;
+  --acc: #4F7CFF;
+  --acc2: #7CE0C3;
+  --warn: #FBBF24;
+  --node: #0A0A0C;
+}
+
+:root[data-theme="light"] {
+  --bg: #FAFAF9;
+  --surface: #FFFFFF;
+  --ink: #09090B;
+  --dim: #52525B;
+  --faint: #71717A;
+  --line: #D4D4D8;
+  --acc: #2563EB;
+  --acc2: #0D9488;
+  --warn: #D97706;
+  --node: #FFFFFF;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-acc: var(--acc);
+  --color-acc2: var(--acc2);
+  --color-warn: var(--warn);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  transition: background 0.4s, color 0.4s;
+  overflow-x: hidden;
+}
+
+/* Content must be readable before JS runs and with JS disabled.
+   The scroll script only takes over opacity once it is running. */
+.act-panel { opacity: 1; }
+
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
