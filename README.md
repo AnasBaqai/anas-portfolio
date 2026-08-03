@@ -1,6 +1,10 @@
 # Muhammad Anas — Portfolio
 
+**Live: [anasm.fyi](https://anasm.fyi)**
+
 Single-page portfolio. Next.js App Router, TypeScript, Tailwind v4, no animation library.
+
+Deployed on Vercel; pushes to `main` deploy automatically.
 
 ## Develop
 
