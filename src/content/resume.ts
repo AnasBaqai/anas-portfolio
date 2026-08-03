@@ -175,7 +175,7 @@ export const resume = {
 
   contact: {
     email: 'anashabib139@gmail.com',
-    phone: '+49 170 7413792',
+    phone: '+49 170 9055176',
     linkedin: 'https://linkedin.com/in/anas-baqai-bo21',
     github: 'https://github.com/AnasBaqai',
     cv: '/anas-cv.pdf',
