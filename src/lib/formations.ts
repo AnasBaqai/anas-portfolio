@@ -16,6 +16,21 @@ export const JOURNEY = [
   [0.42, 0.44, 0.5], // 4 constellation — centre-left, largest
 ] as const satisfies readonly (readonly [number, number, number])[];
 
+/**
+ * Where the subject travels *after* the narrative ends.
+ *
+ * The narrative occupies only the first ~47% of the page; without this the
+ * subject parked at JOURNEY[4] for the whole of Experience, Projects, Skills
+ * and Contact. The first entry must equal JOURNEY[4] so the hand-off from
+ * `journeyAt` to `epilogueAt` is seamless (asserted in formations.test.ts).
+ */
+export const EPILOGUE = [
+  [0.42, 0.44, 0.5], // hand-off — identical to JOURNEY[4]
+  [0.82, 0.6, 0.33], // experience — swings right and down, shrinking away
+  [0.16, 0.36, 0.26], // projects / skills — crosses back to the far left
+  [0.6, 0.54, 0.2], // credentials / contact — settles small and low-right
+] as const satisfies readonly (readonly [number, number, number])[];
+
 /** Cluster centres for the constellation formation. Shared with the overlay. */
 export const CLUSTERS = [
   [-0.62, -0.28],
@@ -102,6 +117,30 @@ export function interpolateInto(
   const a = formations[index];
   const b = formations[index + 1];
   for (let i = 0; i < out.length; i++) out[i] = lerp(a[i], b[i], frac);
+}
+
+/**
+ * Position and scale during the epilogue — the scroll past the narrative.
+ * Same shape as `journeyAt`, keyed on a single 0..1 progress instead of a
+ * formation index, because the formation no longer changes here.
+ */
+export function epilogueAt(
+  progress: number,
+  width: number,
+  height: number,
+): { cx: number; cy: number; scale: number } {
+  const segments = EPILOGUE.length - 1;
+  const s = clamp(progress, 0, 1) * segments;
+  const index = clamp(Math.floor(s), 0, segments - 1);
+  const frac = easeInOut(s - index);
+  const a = EPILOGUE[index];
+  const b = EPILOGUE[index + 1];
+  const min = Math.min(width, height);
+  return {
+    cx: lerp(a[0], b[0], frac) * width,
+    cy: lerp(a[1], b[1], frac) * height,
+    scale: lerp(a[2], b[2], frac) * min,
+  };
 }
 
 /** Position and scale of the whole subject in viewport pixels. */

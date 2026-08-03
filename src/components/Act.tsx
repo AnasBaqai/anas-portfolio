@@ -22,8 +22,11 @@ export default function Act({ act }: { act: ActData }) {
       const rect = section.getBoundingClientRect();
       const v = panelVisibility(rect.top, rect.height, window.innerHeight);
       panel.style.opacity = String(v);
+      // Cap the slide against viewport width: a flat 70px is 18% of a 390px
+      // phone, which shoved the panel past both edges while it was fading in.
+      const travel = Math.min(70, window.innerWidth * 0.06);
       panel.style.transform =
-        `translate3d(${(1 - v) * 70 * direction}px, ${(1 - v) * 26}px, 0)`;
+        `translate3d(${(1 - v) * travel * direction}px, ${(1 - v) * 26}px, 0)`;
     });
   }, [act.side]);
 

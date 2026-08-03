@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { narrativeProgress, subscribeToFrame } from '@/lib/scroll';
 import {
-  buildFormations, interpolateInto, journeyAt, stageAt, FORMATION_COUNT,
+  buildFormations, epilogueAt, interpolateInto, journeyAt, stageAt, FORMATION_COUNT,
 } from '@/lib/formations';
 import { computeLinks } from '@/lib/neighbors';
 import {
@@ -94,6 +94,11 @@ export default function Subject() {
       return { start, end };
     }
 
+    /** Furthest scrollY the document allows — the end of the epilogue. */
+    function maxScroll() {
+      return Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    }
+
     const unsubscribe = subscribeToFrame((scrollY, time) => {
       if (document.hidden) return;
 
@@ -105,8 +110,14 @@ export default function Subject() {
       const frac = reduced ? Math.round(rawFrac) : rawFrac;
       const s = progress * (FORMATION_COUNT - 1);
 
-      const { cx, cy, scale } = journeyAt(index, frac, width, height);
-      const spin = reduced ? 0 : progress * 0.9;
+      // Past the narrative the formation stops changing, so the subject would
+      // sit frozen through Experience, Projects, Skills and Contact — over half
+      // the page. The epilogue keeps it travelling, still purely scroll-driven.
+      const epilogue = narrativeProgress(scrollY, end, maxScroll());
+      const { cx, cy, scale } = epilogue > 0
+        ? epilogueAt(epilogue, width, height)
+        : journeyAt(index, frac, width, height);
+      const spin = reduced ? 0 : (progress + epilogue * 0.85) * 0.9;
 
       interpolateInto(formations, index, frac, points);
 
