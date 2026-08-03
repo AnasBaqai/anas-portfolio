@@ -24,11 +24,11 @@ export default function Hero() {
         </p>
         <dl className="flex gap-9">
           {resume.metrics.map((m) => (
-            <div key={m.label}>
-              <dd className="font-display text-[30px] font-black tracking-tight">{m.value}</dd>
+            <div key={m.label} className="flex flex-col-reverse">
               <dt className="mt-1.5 font-body text-[10px] tracking-[0.14em] uppercase text-[var(--faint)]">
                 {m.label}
               </dt>
+              <dd className="font-display text-[30px] font-black tracking-tight">{m.value}</dd>
             </div>
           ))}
         </dl>
