@@ -4,7 +4,7 @@ interface Sample { ink: number; centroidX: number; centroidY: number }
 
 /** Measure what the canvas actually rendered at the current scroll offset. */
 async function sampleCanvas(page: Page): Promise<Sample> {
-  return page.evaluate(() => {
+  const { ink, sx, sy, width, height } = await page.evaluate(() => {
     const canvas = document.getElementById('subject') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d')!;
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
@@ -16,8 +16,13 @@ async function sampleCanvas(page: Page): Promise<Sample> {
         ink++; sx += px; sy += py;
       }
     }
-    return { ink, centroidX: sx / ink / canvas.width, centroidY: sy / ink / canvas.height };
+    return { ink, sx, sy, width: canvas.width, height: canvas.height };
   });
+  // A blank canvas would make the centroids NaN and every downstream
+  // assertion fail with an opaque NaN comparison. Fail here instead, where
+  // the message names the actual problem.
+  expect(ink, 'canvas rendered no pixels').toBeGreaterThan(0);
+  return { ink, centroidX: sx / ink / width, centroidY: sy / ink / height };
 }
 
 /**
@@ -91,7 +96,9 @@ test.describe('the morphing subject', () => {
     await scrollToNarrativeFraction(page, 0.4);
     const returned = await sampleCanvas(page);
 
-    // Only the idle drift differs, so allow a small tolerance.
+    // Only the idle drift differs, so allow a small tolerance: the animation
+    // has a legitimate sinusoidal idle drift of ±0.012 local units, and these
+    // tolerances (0.03, 20%) are roughly 2.5x that drift, not exact-equality.
     expect(Math.abs(returned.centroidX - forward.centroidX)).toBeLessThan(0.03);
     expect(Math.abs(returned.ink - forward.ink) / forward.ink).toBeLessThan(0.2);
   });
