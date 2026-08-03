@@ -31,7 +31,11 @@ function tick(now: number) {
   const y = window.scrollY;
   const t = now / 1000;
   for (const cb of callbacks) cb(y, t);
-  rafId = requestAnimationFrame(tick);
+  if (callbacks.size > 0) {
+    rafId = requestAnimationFrame(tick);
+  } else {
+    rafId = 0;
+  }
 }
 
 /**

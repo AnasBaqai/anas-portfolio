@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { narrativeProgress, panelVisibility } from '@/lib/scroll';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { narrativeProgress, panelVisibility, subscribeToFrame } from '@/lib/scroll';
 
 describe('narrativeProgress', () => {
   it('clamps to [0, 1] outside the narrative range', () => {
@@ -56,5 +56,83 @@ describe('panelVisibility', () => {
         panelVisibility(centre - d, H, VH), 5,
       );
     }
+  });
+});
+
+describe('subscribeToFrame', () => {
+  let rafCallbacks: ((time: number) => void)[] = [];
+  let rafIds = 0;
+  let scheduledFrames = 0;
+  let cancelledFrames = 0;
+
+  beforeEach(() => {
+    rafCallbacks = [];
+    rafIds = 0;
+    scheduledFrames = 0;
+    cancelledFrames = 0;
+
+    vi.stubGlobal('requestAnimationFrame', (cb: (time: number) => void) => {
+      const id = ++rafIds;
+      rafCallbacks.push(cb);
+      scheduledFrames++;
+      return id;
+    });
+
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => {
+      cancelledFrames++;
+    });
+
+    vi.stubGlobal('scrollY', 0);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    rafCallbacks = [];
+  });
+
+  it('stops the loop when a callback unsubscribes itself during tick', () => {
+    const unsubscribe = subscribeToFrame((y, t) => {
+      unsubscribe();
+    });
+
+    expect(scheduledFrames).toBe(1);
+
+    // Drive one frame
+    const cb = rafCallbacks[0];
+    cb(1000);
+
+    // After the callback unsubscribes itself, no new frame should be scheduled
+    expect(scheduledFrames).toBe(1);
+  });
+
+  it('allows restarting the loop by subscribing after all callbacks have left', () => {
+    const unsubscribe1 = subscribeToFrame((y, t) => {
+      unsubscribe1();
+    });
+
+    expect(scheduledFrames).toBe(1);
+
+    // Drive one frame
+    const cb1 = rafCallbacks[0];
+    cb1(1000);
+
+    // Loop stopped, no new frames scheduled
+    expect(scheduledFrames).toBe(1);
+
+    // Subscribe a new callback
+    const called: boolean[] = [];
+    const unsubscribe2 = subscribeToFrame((y, t) => {
+      called.push(true);
+    });
+
+    // Should have scheduled a new frame
+    expect(scheduledFrames).toBe(2);
+
+    // Drive the new frame
+    const cb2 = rafCallbacks[1];
+    cb2(2000);
+
+    // New callback should have been called
+    expect(called.length).toBe(1);
   });
 });
