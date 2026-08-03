@@ -2079,7 +2079,7 @@ export default function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--bg)_82%,transparent)] backdrop-blur-md">
       <nav className="mx-auto flex max-w-[1240px] items-center gap-4 px-[6vw] py-3 md:px-8">
-        <a href="#hero" className="font-display text-sm font-800 tracking-tight uppercase">
+        <a href="#hero" className="font-display text-sm font-extrabold tracking-tight uppercase">
           {resume.name}
         </a>
         <ul className="ml-auto hidden items-center gap-5 md:flex">
@@ -2140,7 +2140,7 @@ export default function Hero() {
         <dl className="flex gap-9">
           {resume.metrics.map((m) => (
             <div key={m.label}>
-              <dd className="font-display text-[30px] font-900 tracking-tight">{m.value}</dd>
+              <dd className="font-display text-[30px] font-black tracking-tight">{m.value}</dd>
               <dt className="mt-1.5 font-body text-[10px] tracking-[0.14em] uppercase text-[var(--faint)]">
                 {m.label}
               </dt>
@@ -2336,7 +2336,7 @@ export default function Experience() {
           {resume.experience.map((role) => (
             <li key={`${role.company}-${role.period}`} className="border-t border-[var(--line)] pt-6">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h3 className="font-display text-xl font-800 tracking-tight">{role.title}</h3>
+                <h3 className="font-display text-xl font-extrabold tracking-tight">{role.title}</h3>
                 <span className="font-body text-[15px] text-[var(--acc)]">{role.company}</span>
                 {role.context && (
                   <span className="font-body text-[13px] text-[var(--faint)]">({role.context})</span>
@@ -2384,7 +2384,7 @@ export default function Projects() {
               key={project.name}
               className="border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--acc)]"
             >
-              <h3 className="font-display text-lg font-800 tracking-tight">{project.name}</h3>
+              <h3 className="font-display text-lg font-extrabold tracking-tight">{project.name}</h3>
               <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
                 {project.tagline}
               </p>
@@ -2466,7 +2466,7 @@ export default function Credentials() {
           <ul className="space-y-6">
             {resume.education.map((entry) => (
               <li key={entry.school} className="border-t border-[var(--line)] pt-4">
-                <h3 className="font-display text-base font-800 tracking-tight">{entry.school}</h3>
+                <h3 className="font-display text-base font-extrabold tracking-tight">{entry.school}</h3>
                 <p className="mt-1 font-body text-[14px] text-[var(--dim)]">{entry.degree}</p>
                 <p className="mt-1 font-body text-[12.5px] text-[var(--faint)]">
                   {entry.location} · {entry.period}
@@ -2480,7 +2480,7 @@ export default function Credentials() {
           <p className="eyebrow">Published</p>
           <h2 className="display-lg mt-4 mb-8">Research</h2>
           <div className="border-t border-[var(--line)] pt-4">
-            <h3 className="max-w-[45ch] font-display text-base font-800 tracking-tight">
+            <h3 className="max-w-[45ch] font-display text-base font-extrabold tracking-tight">
               {resume.publication.title}
             </h3>
             <p className="mt-1 font-body text-[12.5px] tracking-wide text-[var(--acc2)]">
@@ -2564,7 +2564,7 @@ export default function Contact() {
                 <span className="w-20 shrink-0 font-body text-[11px] tracking-[0.18em] uppercase text-[var(--faint)]">
                   {link.label}
                 </span>
-                <span className="font-display text-lg font-800 tracking-tight transition-colors group-hover:text-[var(--acc)]">
+                <span className="font-display text-lg font-extrabold tracking-tight transition-colors group-hover:text-[var(--acc)]">
                   {link.value}
                 </span>
               </a>
